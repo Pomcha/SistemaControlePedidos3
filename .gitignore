@@ -1,0 +1,13 @@
+#Arquivos compilados
+*.o
+*.out
+*.exe
+bin/
+obj/
+
+# Arquivos do VSCode 
+.vscode/
+
+# Arquivos temporários *.tmp
+*~
+.DS_Store
