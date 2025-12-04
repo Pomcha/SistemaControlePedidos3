@@ -127,3 +127,22 @@ int consultarCliente(int modo, char chave[], Cliente listaClientes[], int totalC
     }
     return -1;
 }
+
+//remover_clientePF
+int removerClientePF(char cpf[], PessoaFisica listaPF[], int *totalPF) {
+    int encontrado = -1;
+    for(int i = 0; i < *totalPF; i++) {
+        if(strcmp(listaPF[i].cpf, cpf) == 0 ) {
+            encontrado = i;
+            break;
+        }
+    }
+    if(encontrado = -1) {
+        return 0;
+    }
+    for(int i = encontrado; i < *totalPF -1; i++){
+        listaPF[i] = listaPF[i+1];
+    }
+    (*totalPF)--;
+    return 1;
+}
