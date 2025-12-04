@@ -146,3 +146,22 @@ int removerClientePF(char cpf[], PessoaFisica listaPF[], int *totalPF) {
     (*totalPF)--;
     return 1;
 }
+
+//listar_clientes
+void listarClientes(PessoaFisica listaPF[], int totalPF){
+    if(totalPF==0) {
+        printf("\nnenhum cliente cadastrado.\n");
+        return;
+    }
+    printf("\n====== LISTA DE CLIENTES (PF) ======\n");
+    for(int i=0; i < totalPF; i++){
+        printf("\n--- Cliente %d ---\n", i+1);
+        printf("ID: %d\n", listaPF[i].dados.id);
+        printf("Nome: %s\n",listaPF[i].dados.nome);
+        printf("Endereco: %s\n", listaPF[i].dados.endereco);
+        printf("Telefone: %s\n", listaPF[i].dados.telefone);
+        printf("E-mail: %s\n", listaPF[i].dados.email);
+        printf("CPF: %s\n", listaPF[i].cpf);
+    }
+    printf("\n======================================\n");
+}
