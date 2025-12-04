@@ -97,3 +97,33 @@ int cadastrarCliente(Cliente listaClientes[], int *totalClientes, PessoaFisica l
     return 0;
 
 }
+
+//consultar_cliente
+int consultarClientePorID(int id, Cliente lista[], int total) {
+    for(int i=0; i < total; i++) {
+        if(lista[i].id == id) {
+            return 1;
+        }
+    }
+    return -1; 
+}
+
+int consultarClientePorCPF(char cpf[], PessoaFisica lista[], int total) {
+    for(int i=0; i<total; i++){
+        if(strcmp(lista[i].cpf, cpf) == 0 ){
+            return i;
+        }
+    }
+    return -1;
+}
+
+int consultarCliente(int modo, char chave[], Cliente listaClientes[], int totalClientes, PessoaFisica listaPF[], int totalPF) {
+    if(modo == 1){
+        int id = atoi(chave);
+        return consultarClientePorID(id, listaClientes, totalClientes);
+    }
+    if(modo == 2) {
+        return consultarClientePorCPF(chave, listaPF, totalPF);
+    }
+    return -1;
+}
