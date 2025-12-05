@@ -82,4 +82,25 @@ int validadorCNPJ(char cnpj[]) {
     }
     if(iguais)
     return 0;
+
+    int pesos1[12] = {5,4,3,2,9,8,7,6,5,4,3,2};
+    int pesos2[13] = {6,5,4,3,2,9,8,7,6,5,4,3,2};
+    int soma = 0, resto, digito1, digito2;
+
+    for(int i=0; i<12; i++) {
+        soma += (numeros[i] - '0') * pesos1[i];
+    }
+    resto = soma % 11;
+    digito1 = (resto < 2) ? 0 : 11 - resto;
+
+    soma =0;
+    for(int i =0; i <13; i++) { 
+        soma += (numeros[i] - '0') * pesos2[i];
+    }
+    resto = soma % 11;
+    digito2 = (resto < 2) ? 0 : 11 - resto;
+
+    if(digito1 == (numeros[12] - '0') && digito2 == (numeros[13] - '0'))
+    return 1;
+    return 0;
 }
