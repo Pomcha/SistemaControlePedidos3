@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 
+//Validar CPF:
 int validarCPF(char cpf[]) {
 
     char numeros[12];
@@ -54,4 +55,31 @@ int validarCPF(char cpf[]) {
         return 1;  // CPF válido
 
     return 0;  // CPF inválido
+}
+
+//Validar CNPJ:
+
+int validadorCNPJ(char cnpj[]) {
+    char numeros[15];
+    int j = 0;
+
+    for(int i = 0; i < strlen(cnpj); i++) {
+        if(isdigit(cnpj[i])) {
+            numeros[j++] = cnpj[i];
+        }
+    }
+    numeros[j] = '\0';
+
+    if(strlen(numeros) != 14)
+    return 0;
+
+    int iguais =1;
+    for(int i =1; i <14; i++) {
+        if(numeros[i] != numeros[0]) {
+            iguais = 0;
+            break;
+        }
+    }
+    if(iguais)
+    return 0;
 }
