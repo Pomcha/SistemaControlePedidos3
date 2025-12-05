@@ -1,7 +1,10 @@
-//struct_cliente:
 #include <stdio.h>
 #include <string.h>
-typedef struct{
+#include <stdlib.h>
+
+//STRUCTS
+//Cliente:
+typedef struct {
     int id;
     char tipo[2];
     char nome[100];
@@ -10,158 +13,198 @@ typedef struct{
     char email[100];
 } Cliente;
 
-//struct_pf
-typedef struct{
+//PessoaFisica:
+
+typedef struct {
     Cliente dados;
     char cpf[20];
 } PessoaFisica;
 
-// funcao: verificar se ID ja existe
+//PessoaJuridica:
+
+typedef struct {
+    Cliente dados;
+    char cnpj[20];
+    char nomeContato[100];
+} PessoaJuridica;
+
+//VERIFICACOES
+
 int verificarID(int id, Cliente lista[], int total) {
     for(int i = 0; i < total; i++) {
-        if(lista[i].id == id) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-//funcao: verificar se CPF ja existe
-int verificarCPF(char cpf[], PessoaFisica lista[], int total) {
-    for(int i = 0; i < total; i++) {
-        if(strcmp(lista[i].cpf, cpf) == 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-//analisar_cliente
-int analisarCliente(int id, char documento[], Cliente listaCliente[], int totalClientes, PessoaFisica listaPF[], int totalPF) {
-    if(verificarID(id, listaCliente, totalClientes))
-    return 1;
-    if(verificarCPF(documento, listaPF, totalPF))
-    return 2;
-
-    return 0;
-}
-
-//cadastrar_cliente
-int cadastrarCliente(Cliente listaClientes[], int *totalClientes, PessoaFisica listaPF[], int *totalPF) {
-    int id;
-    char nome[100], endereco[200], telefone[20], email[100];
-    char cpf[20];
-    printf("Digite o ID do cliente: ");
-    scanf("%d", &id);
-
-    printf("Digite o nome: ");
-    scanf(" %[^\n]", nome);
-
-    printf("Digite o endereco: ");
-    scanf(" %[^\n]", endereco);
-
-    printf("Digite o telefone: ");
-    scanf(" %[^/n]", telefone);
-
-    printf("Digite o email: ");
-    scanf(" %[^\n]", email );
-
-    printf("Digite o CPF: ");
-    scanf(" %[^\n]", cpf);
-
-    int status = analisarCliente(id, cpf, listaClientes, *totalClientes, listaPF, *totalPF);
-    if(status==1) {
-        printf("ERRO: ID ja cadastrado\n");
+        if(lista[i].id == id)
         return 1;
     }
-    if(status==2){
-        printf("ERRO: CPF ja cadastrado\n");
+    return 0;
+}
+
+int verificarCPF(char cpf[], PessoaFisica lista[], int total) {
+    for(int i = 0; i < total; i++) {
+        if(strcmp(lista[i].cpf, cpf) == 0)
+        return 1;
     }
-    listaClientes[*totalClientes].id = id;
-    strcpy(listaClientes[*totalClientes].tipo, "F");
-    strcpy(listaClientes[*totalClientes].nome, nome);
-    strcpy(listaClientes[*totalClientes].endereco, endereco);
-    strcpy(listaClientes[*totalClientes].telefone, telefone);
-    strcpy(listaClientes[*totalClientes].email, email);
+    return 0;
+}
+
+int verificarCNPJ(char cnpj[], PessoaJuridica lista[], int total) {
+    for(int i = 0; i < total; i++) {
+        if(strcmp(lista[i].cnpj, cnpj) == 0)
+        return 1;
+    }
+    return 0;
+}
+
+//AnalisarCliente:
+
+int analisarCliente(int id, char documento[], Cliente listaClientes[], int totalClientes, PessoaFisica listaPF[], int totalPF, PessoaJuridica listaPJ[], int totalPJ, char tipo) {
+    if(verificarID(id, listaClientes, totalClientes))
+    return 1;
+    if(tipo == 'F') {
+        if(verificarCPF(documento, listaPF, totalPF))
+        return 2;
+    } else if(tipo == 'J') {
+        if(verificarCNPJ(documento, listaPJ, totalPJ))
+        return 2;
+    }
+    return 0;
+}
+
+//CadastrarCliente:
+
+int cadastrarCliente(Cliente clientes[], int *totalClientes, PessoaFisica listaPF[], int *totalPF, PessoaJuridica listaPJ[], int *totalPJ) {
+    int id;
+    char nome[100], endereco[200], telefone[20], email[100];
+    char documento[30];
+    char tipo;
+
+    printf("Cliente Pessoa Fisica(F) ou Juridica(J)? ");
+    scanf(" %c", &tipo);
+
+    printf("Digite o ID: ");
+    scanf("%d", &id);
+
+    printf("Nome: ");
+    scanf(" %[^\n]", nome);
+
+    printf("Endereco: ");
+    scanf(" %[^\n]", endereco);
+
+    printf("Telefone: ");
+    scanf(" %[^\n]", telefone);
+
+    printf("E-mail: ");
+    scanf(" %[^\n]", email);
+
+    if(tipo == 'F'){
+        printf("CPF: ");
+        scanf(" %[^\n]", documento);
+    } else {
+        printf("CNPJ: ");
+        scanf(" %[^\n]", documento);
+    }
+    int status = analisarCliente(id, documento, clientes, *totalClientes, listaPF, *totalPF, listaPJ, *totalPJ, tipo);
+    if(status == 1) {
+        printf("ERRO: ID ja existe.\n"); 
+        return 1;
+    }
+    if(status == 2) {
+        printf("ERRO: CPF/CNPJ ja existe.\n");
+        return 2;
+    }
+    //CadastrarCliente base:
+    clientes[*totalClientes].id = id;
+    strcpy(clientes[*totalClientes].tipo, (tipo=='F' ? "F" : "J"));
+    strcpy(clientes[*totalClientes].nome, nome);
+    strcpy(clientes[*totalClientes].endereco, endereco);
+    strcpy(clientes[*totalClientes].telefone, telefone);
+    strcpy(clientes[*totalClientes].email, email);
     (*totalClientes)++;
 
-    listaPF[*totalPF].dados.id = id;
-    strcpy(listaPF[*totalPF].dados.nome, nome);
-    strcpy(listaPF[*totalPF].dados.endereco, endereco);
-    strcpy(listaPF[*totalPF].dados.telefone, telefone);
-    strcpy(listaPF[*totalPF].dados.email, email);
-    strcpy(listaPF[*totalPF].cpf, cpf);
-    (*totalPF)++;
+    //CadastrarPF:
 
+    if(tipo == 'F') {
+        listaPF[*totalPF].dados = clientes[*totalClientes-1];
+        strcpy(listaPF[*totalPF].cpf, documento);
+        (*totalPF)++;
+    }
+    
+    //CadastrarPJ:
+    else {
+        listaPJ[*totalPJ].dados = clientes[*totalClientes-1];
+        strcpy(listaPJ[*totalPJ].cnpj, documento);
+        printf("Nome do responsavel: ");
+        scanf(" %[^\n]", listaPJ[*totalPJ].nomeContato);
+        (*totalPJ)++;
+    }
     printf("Cliente cadastrado com sucesso!\n");
     return 0;
-
 }
 
-//consultar_cliente
-int consultarClientePorID(int id, Cliente lista[], int total) {
-    for(int i=0; i < total; i++) {
-        if(lista[i].id == id) {
-            return 1;
-        }
-    }
-    return -1; 
-}
+//RemoverCliente:
 
-int consultarClientePorCPF(char cpf[], PessoaFisica lista[], int total) {
-    for(int i=0; i<total; i++){
-        if(strcmp(lista[i].cpf, cpf) == 0 ){
-            return i;
-        }
-    }
-    return -1;
-}
-
-int consultarCliente(int modo, char chave[], Cliente listaClientes[], int totalClientes, PessoaFisica listaPF[], int totalPF) {
-    if(modo == 1){
-        int id = atoi(chave);
-        return consultarClientePorID(id, listaClientes, totalClientes);
-    }
-    if(modo == 2) {
-        return consultarClientePorCPF(chave, listaPF, totalPF);
-    }
-    return -1;
-}
-
-//remover_clientePF
 int removerClientePF(char cpf[], PessoaFisica listaPF[], int *totalPF) {
-    int encontrado = -1;
-    for(int i = 0; i < *totalPF; i++) {
-        if(strcmp(listaPF[i].cpf, cpf) == 0 ) {
-            encontrado = i;
+    int pos = -1;
+    for(int i =0; i < *totalPF; i++){ 
+        if(strcmp(listaPF[i].cpf, cpf) == 0) {
+            pos = i;
             break;
         }
     }
-    if(encontrado = -1) {
-        return 0;
-    }
-    for(int i = encontrado; i < *totalPF -1; i++){
-        listaPF[i] = listaPF[i+1];
-    }
+    if(pos == -1) return 0;
+    for(int i = pos; i < *totalPF -1; i++)
+    listaPF[i] = listaPF[i+1];
     (*totalPF)--;
     return 1;
 }
+int removerClientePJ(char cnpj[], PessoaJuridica listaPJ[], int *totalPJ) {
+    int pos = -1;
+    for(int i = 0; i<*totalPJ; i++){
+        if(strcmp(listaPJ[i].cnpj, cnpj) == 0){
+            pos = i;
+            break;
+        }
+    }
+    if(pos == -1) return 0;
+    for(int i = pos; i < *totalPJ - 1; i++)
+    listaPJ[i] = listaPJ[i+1];
+    (*totalPJ)--;
+    return 1;
+}
 
-//listar_clientes
-void listarClientes(PessoaFisica listaPF[], int totalPF){
-    if(totalPF==0) {
-        printf("\nnenhum cliente cadastrado.\n");
-        return;
-    }
-    printf("\n====== LISTA DE CLIENTES (PF) ======\n");
-    for(int i=0; i < totalPF; i++){
-        printf("\n--- Cliente %d ---\n", i+1);
+void removerCliente(PessoaFisica listaPF[], int *totalPF, PessoaJuridica listaPJ[], int *totalPJ){
+    char documento[30];
+    int tipo;
+    printf("Tipo de cliente (1=PF , 2=PJ): ");
+    scanf("%d", &tipo);
+
+    printf("Informe o CPF ou CNPJ: ");
+    scanf("%s", documento);
+    int sucesso = 0;
+    if(tipo ==1) 
+    sucesso = removerClientePF(documento, listaPF, totalPF);
+    else if(tipo ==2)
+    sucesso = removerClientePJ(documento, listaPJ, totalPJ);
+    if(sucesso)
+    printf("Cliente removido com sucesso!\n");
+    else 
+    printf("Cliente nao encontrado!\n");
+}
+//ListarClientes:
+
+void listarClientes(PessoaFisica listaPF[], int totalPF, PessoaJuridica listaPJ[], int totalPJ) {
+    printf("\n======LISTA DE CLIENTES======\n");
+    printf("\n---Pessoa Fisica---\n");
+    for(int i = 0; i < totalPF; i++) {
         printf("ID: %d\n", listaPF[i].dados.id);
-        printf("Nome: %s\n",listaPF[i].dados.nome);
-        printf("Endereco: %s\n", listaPF[i].dados.endereco);
-        printf("Telefone: %s\n", listaPF[i].dados.telefone);
-        printf("E-mail: %s\n", listaPF[i].dados.email);
-        printf("CPF: %s\n", listaPF[i].cpf);
+        printf("Nome: %s\n", listaPF[i].dados.nome);
+        printf("CPF: %s\n\n", listaPF[i].cpf);
     }
-    printf("\n======================================\n");
+    printf("\n---Pessoa Juridica---\n");
+    for(int i = 0; i < totalPJ; i++) {
+        printf("ID: %d\n", listaPJ[i].dados.id);
+        printf("Empresa: %s\n", listaPJ[i].dados.nome);
+        printf("CNPJ: %s\n", listaPJ[i].cnpj);
+        printf("Contato: %s\n\n", listaPJ[i].nomeContato);
+    }
+    printf("===============================\n");
 }
