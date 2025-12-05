@@ -1,51 +1,86 @@
+#include <stdio.h>
+#include <string.h>
 #include <ncurses.h>
 
+//  analisar ~
 
-
-//  verificar existencia do cliente e do produto
-
-    int clienteExisteCSV(int clienteId)
-{
-    FILE *fp = fopen("Clientes.csv", "r");
-    if (!fp) return 0;
-
-    int id;
-    char linha[256];
-
-    while (fgets(linha, sizeof(linha), fp)) {
-        if (sscanf(linha, "%d", &id) == 1) {
-            if (id == clienteId) {
-                fclose(fp);
-                return 1;
-            }
-        }
-    }
-
-    fclose(fp);
-    return 0;
-}
-
-
-int produtoExisteCSV(int produtoId)
+int produtoExisteCSV(int idBuscado)
 {
     FILE *fp = fopen("Produtos.csv", "r");
-    if (!fp) return 0;
+    if (!fp) {
+        printf("ERRO: Nao foi possivel abrir produtos.csv\n");
+        return 0;
+    }
 
     int id;
-    char linha[256];
+    char linha[500];
+
+    fgets(linha, sizeof(linha), fp); // pular cabeçalho
 
     while (fgets(linha, sizeof(linha), fp)) {
-        if (sscanf(linha, "%d", &id) == 1) {
-            if (id == produtoId) {
-                fclose(fp);
-                return 1;
-            }
+        sscanf(linha, "%d;", &id);
+        if (id == idBuscado) {
+            fclose(fp);
+            return 1;
         }
     }
 
     fclose(fp);
     return 0;
 }
+
+
+int clienteExisteCSV(int idBuscado)
+{
+    FILE *fp = fopen("Clientes.csv", "r");
+    if (!fp) {
+        printf("ERRO: Nao foi possivel abrir clientes.csv\n");
+        return 0;
+    }
+
+    int id;
+    char linha[500];
+
+    fgets(linha, sizeof(linha), fp); // pular cabeçalho
+
+    while (fgets(linha, sizeof(linha), fp)) {
+        sscanf(linha, "%d;", &id);
+        if (id == idBuscado) {
+            fclose(fp);
+            return 1;
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
+
+int pedidoExisteCSV(int idBuscado)
+{
+    FILE *fp = fopen("Pedidos.csv", "r");
+    if (!fp) {
+        printf("ERRO: Nao foi possivel abrir pedidos.csv\n");
+        return 0;
+    }
+
+    int id;
+    char linha[300];
+
+    fgets(linha, sizeof(linha), fp); // pular cabecalho
+
+    while (fgets(linha, sizeof(linha), fp)) {
+        sscanf(linha, "%d;", &id);  
+        if (id == idBuscado) {
+            fclose(fp);
+            return 1;
+        }
+    }
+
+    fclose(fp);
+    return 0;
+}
+
 
 
 
@@ -55,28 +90,33 @@ int produtoExisteCSV(int produtoId)
 
     //  Funcoes principais do menu
 
+
+//  cadastrar o pedido
 void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *qtdItens)
 {
     Pedido p;
-    p.id = *qtdPedidos + 1;
 
-    int produtoIdTemp;
-    int clienteIdTemp;
+    // 1. Usuário informa o ID do pedido
+    printf("ID do pedido: ");
+    scanf("%d", &p.id);
 
-    printf("ID do produto: ");  
-    scanf("%d", &produtoIdTemp);
-
-    // Verifica produto
-    while (!produtoExisteCSV(produtoIdTemp)){
-        printf("\nERRO: O produto com ID %d NAO existe!\n", produtoIdTemp);
-        printf("Digite novamente o ID do produto: ");
-        scanf("%d", &produtoIdTemp);
+    // 2. Verifica se o ID já existe
+    while (pedidoExisteCSV(p.id)) {
+        printf("\nERRO: O pedido com ID %d JA existe!\n", p.id);
+        printf("Digite novamente o ID do pedido: ");
+        scanf("%d", &p.id);
     }
 
-    printf("ID do cliente: ");  
+    // 3. ADICIONA A DATA AQUI AGORA
+    printf("Data (DD/MM/AAAA): ");
+    scanf("%s", p.data);
+
+    // 4. Usuário informa o cliente
+    int clienteIdTemp;
+    printf("ID do cliente: ");
     scanf("%d", &clienteIdTemp);
 
-    // Verifica cliente
+    // 5. Verifica cliente
     while (!clienteExisteCSV(clienteIdTemp)) {
         printf("\nERRO: O cliente com ID %d NAO existe!\n", clienteIdTemp);
         printf("Digite novamente o ID do cliente: ");
@@ -85,20 +125,28 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
 
     p.clienteid = clienteIdTemp;
 
-    printf("Data (DD/MM/AAAA): ");
-    scanf("%s", p.data);
-
     p.total = 0;
-    int continuar = 1;
 
-    while (continuar){
+    // 6. Cadastra itens do pedido
+    int continuar = 1;
+    int produtoIdTemp;
+
+    while (continuar) {
         itemPedido it;
         it.pedidoId = p.id;
 
-        
+        printf("\nID do produto: ");
+        scanf("%d", &produtoIdTemp);
 
-        printf("Quantidade: ");     //  Verificar se o produto ja existe na lista de**
-                                    //  produtos**
+        while (!produtoExisteCSV(produtoIdTemp)) {
+            printf("\nERRO: O produto com ID %d NAO existe!\n", produtoIdTemp);
+            printf("Digite novamente o ID do produto: ");
+            scanf("%d", &produtoIdTemp);
+        }
+
+        it.produtoId = produtoIdTemp;
+
+        printf("Quantidade: ");
         scanf("%d", &it.quantidade);
 
         printf("Subtotal do item: ");
@@ -109,27 +157,18 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
 
         p.total += it.subtotal;
 
-        printf("Adicionar outro item? (1 = sim, 0 = nao): ");
+        printf("\nAdicionar outro item? (1 = sim, 0 = nao): ");
         scanf("%d", &continuar);
-
-        // Se continuar = 1, perguntar novamente produto
-        if (continuar == 1) {
-            printf("Digite o ID do produto: ");
-            scanf("%d", &produtoIdTemp);
-
-            while (!produtoExisteCSV(produtoIdTemp)) {
-                printf("\nERRO: Produto ID %d NAO existe!\n", produtoIdTemp);
-                printf("Digite novamente o ID do produto: ");
-                scanf("%d", &produtoIdTemp);
-            }
-        }
     }
 
-pedidos[*qtdPedidos] = p;
-(*qtdPedidos)++;
+    // Salva pedido finalizado
+    pedidos[*qtdPedidos] = p;
+    (*qtdPedidos)++;
 
-printf("Pedido inserido.\n");
+    printf("\nPedido inserido com sucesso.\n");
 }
+
+
 
 void listarPedidos(Pedido pedidos[], int qtdPedidos)
 {
@@ -260,13 +299,3 @@ void carregarPedidosCSV(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], i
     fclose(fp);
     printf("Pedidos carregados.\n");
 }
-
-
-
-
-
-
-
-
-
-    
