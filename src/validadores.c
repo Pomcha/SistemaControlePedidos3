@@ -13,13 +13,11 @@ int validarCPF(const char *cpf){
             numeros[j++] = cpf[i];
         }
     }
-    numeros[j] = '\0';  // terminador correto!
+    numeros[j] = '\0';  
 
-    // verifica se tem exatamente 11 dígitos
     if (strlen(numeros) != 11)
         return 0;
 
-    // verifica se todos os dígitos são iguais -> inválido
     int iguais = 1;
     for (int i = 1; i < 11; i++) {
         if (numeros[i] != numeros[0]) {
@@ -48,7 +46,7 @@ int validarCPF(const char *cpf){
     resto = soma % 11;
     digito2 = (resto < 2) ? 0 : 11 - resto;
 
-    // comparação final CORRIGIDA
+    // comparação final 
     if (digito1 == (numeros[9] - '0') &&
         digito2 == (numeros[10] - '0'))
         return 1;  // CPF válido

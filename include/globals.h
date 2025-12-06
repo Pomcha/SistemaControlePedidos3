@@ -10,7 +10,7 @@
 // ===========================================
 
 
-// Cliente (Geral - Base de dados)
+// Cliente
 typedef struct {
     int id;
     char tipo[2]; 
@@ -20,13 +20,13 @@ typedef struct {
     char email[100];
 } Cliente;
 
-// PessoaFisica (Usa Cliente como base)
+// PessoaFisica
 typedef struct {
     Cliente dados;
     char cpf[20];
 } PessoaFisica;
 
-// PessoaJuridica (Usa Cliente como base)
+// PessoaJuridica 
 typedef struct {
     Cliente dados;
     char cnpj[20];
@@ -45,24 +45,24 @@ typedef struct{
 
 typedef struct {
     int id;
-    char descricao[100]; // << NOVO: Necessário para produto.c e persistencia.c
+    char descricao[100]; 
     float preco;
-    int estoque;          // << NOVO: Necessário para produto.c e persistencia.c
+    int estoque;          
 } Produto;
 
 typedef struct {
-    int pedidoId;        // Mudei para 'pedidoId' para consistência (era 'id_produto')
-    int produtoId;       // Mudei para 'produtoId' para consistência
+    int pedidoId;        
+    int produtoId;       
     int quantidade;
     double subtotal;
-} itemPedido; // Recomendo manter 'subtotal' no itemPedido, ou ajustar 'pedido.c'
+} itemPedido;
 
 typedef struct {
-    int id;             // Era 'id_pedido'
-    int clienteid;      // Era 'id_cliente'
-    char data[20];     // << NOVO: Necessário para pedido.c
-    double total;      // << NOVO: Necessário para pedido.c
-    // outros campos
+    int id;            
+    int clienteid;     
+    char data[20];    
+    double total;      
+   
 } Pedido;
 
-#endif // GLOBALS_H
+#endif 

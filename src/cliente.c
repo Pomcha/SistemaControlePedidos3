@@ -187,7 +187,6 @@ void telaConsultarCliente(PessoaFisica listaPF[], int totalPF, PessoaJuridica li
         }
     }
 
-    // CORREÇÃO: Remove a tag de referência
     if(!encontrado) mvprintw(4, 4, "Cliente nao existe.");
     
     mvprintw(12, 4, "Pressione qualquer tecla para voltar.");
@@ -213,7 +212,7 @@ void telaRemoverCliente(PessoaFisica listaPF[], int *totalPF, PessoaJuridica lis
     }
 
     if(index == -1) {
-        // CORREÇÃO: Remove as tags e
+        
         mvprintw(4, 4, "Cliente nao existe.");
         getch(); return;
     }

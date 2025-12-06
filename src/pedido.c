@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h> // Para atoi e atof
+#include <stdlib.h> 
 #include <ncurses.h>
 #include "globals.h" 
 #include "pedido.h"
@@ -11,23 +11,23 @@
 // ====================================================================
 
 /**
- * @brief Obtém uma string do usuário na interface ncurses.
+ * @brief 
  */
 void obterStringNcurses(int y, int x, char *str, int max_len) {
-    // Apaga a área de input para garantir que o texto anterior não apareça
+   
     for (int i = 0; i < max_len; i++) mvaddch(y, x + i, ' ');
     
-    move(y, x); // Move o cursor para o local de input
-    echo();             // Ativa a exibição do input
-    curs_set(1);        // Mostra o cursor
+    move(y, x); 
+    echo();            
+    curs_set(1);     
     mvgetnstr(y, x, str, max_len);
-    noecho();           // Desativa a exibição do input
-    curs_set(0);        // Oculta o cursor
+    noecho();           
+    curs_set(0);       
     refresh();
 }
 
 /**
- * @brief Obtém um inteiro do usuário na interface ncurses.
+ * @brief O
  */
 int obterInteiroNcurses(int y, int x) {
     char input[12];
@@ -59,7 +59,7 @@ int produtoExisteCSV(int idBuscado)
     fgets(linha, sizeof(linha), fp); // pular cabeçalho
 
     while (fgets(linha, sizeof(linha), fp)) {
-        // Produtos.csv usa ponto e vírgula (;) e ID é o primeiro campo
+    
         sscanf(linha, "%d;", &id); 
         if (id == idBuscado) {
             fclose(fp);
@@ -83,13 +83,11 @@ int clienteExisteCSV(int idBuscado)
 
     int id;
     char linha[500];
-    char tipo[5]; // Para capturar 'PF' ou 'PJ', que é o primeiro campo
+    char tipo[5]; 
 
     fgets(linha, sizeof(linha), fp); // pular cabeçalho
 
     while (fgets(linha, sizeof(linha), fp)) {
-        // CORREÇÃO: Clientes.csv usa ';' e o ID é o SEGUNDO campo.
-        // Formato: Tipo (string); ID (int); Resto (ignorado)
         if (sscanf(linha, "%[^;];%d;", tipo, &id) == 2) { 
             if (id == idBuscado) {
                 fclose(fp);
@@ -118,7 +116,6 @@ int pedidoExisteCSV(int idBuscado)
     fgets(linha, sizeof(linha), fp); // pular cabecalho
 
     while (fgets(linha, sizeof(linha), fp)) {
-        // CORREÇÃO: Pedidos.csv usa ',' como delimitador, conforme salvarPedidosCSV.
         sscanf(linha, "%d,", &id);  
         if (id == idBuscado) {
             fclose(fp);
@@ -136,7 +133,6 @@ int pedidoExisteCSV(int idBuscado)
 // FUNÇÕES PRINCIPAIS DO MENU (I/O CORRIGIDO PARA NCURSES)
 // ====================================================================
 
-// cadastrar o pedido
 void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *qtdItens)
 {
     clear();
@@ -145,35 +141,29 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
     Pedido p;
     int linha = 3;
 
-    // 1. Usuário informa o ID do pedido
     mvprintw(linha, 2, "ID do pedido: ");
     p.id = obterInteiroNcurses(linha, 18);
 
-    // 2. Verifica se o ID já existe
+ 
     while (pedidoExisteCSV(p.id)) {
         mvprintw(linha + 1, 2, "ERRO: O pedido com ID %d JA existe! Digite outro ID.", p.id);
-        mvprintw(linha, 18, "                    "); // Limpa o campo anterior
+        mvprintw(linha, 18, "                    "); 
         p.id = obterInteiroNcurses(linha, 18);
-        mvprintw(linha + 1, 2, "                                                                "); // Limpa a mensagem de erro
+        mvprintw(linha + 1, 2, "                                                                "); 
     }
     linha += 2;
 
-    // 3. ADICIONA A DATA
     mvprintw(linha, 2, "Data (DD/MM/AAAA): ");
     obterStringNcurses(linha, 21, p.data, 11);
     linha++;
 
-    // 4. Usuário informa o cliente
     int clienteIdTemp;
-    // PROMPT: Informa a opção de cancelar
     mvprintw(linha, 2, "ID do cliente (0 para CANCELAR): ");
     clienteIdTemp = obterInteiroNcurses(linha, 35); // Posição de input inicial
     linha++;
 
-    // 5. Verifica cliente
-    // ATENÇÃO: O id de cliente só será válido se existir no Clientes.csv (agora corrigido)
     while (!clienteExisteCSV(clienteIdTemp)) {
-        // Lógica de cancelamento (CORRETA)
+        
         if (clienteIdTemp == 0) {
             clear();
             mvprintw(2, 2, "Cadastro de pedido cancelado pelo usuario.");
@@ -183,11 +173,11 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
             return; // SAI DA FUNCAO
         }
 
-        // CORREÇÃO: Mensagem de erro atualizada para incluir a opção de CANCELAR
+      
         mvprintw(linha + 1, 2, "ERRO: O cliente com ID %d NAO existe! Digite outro ID (0 para CANCELAR).", clienteIdTemp);
-        // CORREÇÃO: Limpa o campo anterior na POSIÇÃO CORRETA (35)
+       
         mvprintw(linha, 35, "                    "); 
-        // CORREÇÃO: Posição de input correta (35)
+       
         clienteIdTemp = obterInteiroNcurses(linha, 35); 
         mvprintw(linha + 1, 2, "                                                                                "); // Limpa a mensagem de erro
     }
@@ -221,19 +211,19 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
                 mvprintw(item_linha + 3, 2, "Pressione qualquer tecla para retornar.");
                 refresh();
                 getch();
-                continuar = 0; // Sinaliza que o loop principal deve terminar
-                break; // Sai do loop de validação do produto
+                continuar = 0; 
+                break; 
             }
-            // CORREÇÃO: Mensagem de erro atualizada para incluir a opção de CANCELAR
+         
             mvprintw(item_linha, 2, "ERRO: O produto com ID %d NAO existe! Digite outro ID (0 para CANCELAR).", produtoIdTemp);
-            // CORREÇÃO: Limpa o campo anterior na POSIÇÃO CORRETA (36)
+        
             mvprintw(item_linha - 1, 36, "                    "); 
-            // CORREÇÃO: Posição de input correta (36)
+          
             produtoIdTemp = obterInteiroNcurses(item_linha - 1, 36);
             mvprintw(item_linha, 2, "                                                                                "); // Limpa a mensagem de erro
         }
 
-        // Verifica se houve cancelamento e pula o restante da lógica do item
+  
         if (!continuar) continue;
 
         it.produtoId = produtoIdTemp;
@@ -247,7 +237,6 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
         it.subtotal = obterDoubleNcurses(item_linha, 20);
         item_linha++;
 
-        // CORREÇÃO: Usar o valor de MAX_ITENS
         if (*qtdItens >= MAX_ITENS) {
             mvprintw(item_linha + 1, 2, "ERRO: Limite de itens de pedido atingido. Nao eh possivel adicionar mais.");
             getch();
@@ -263,25 +252,19 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
         continuar = obterInteiroNcurses(item_linha + 1, 44);
     }
 
-    // NOVO: Verifica se o loop foi cancelado e se o total é zero (nenhum item adicionado)
     if (p.total == 0 && *qtdItens > 0 && itens[*qtdItens-1].pedidoId == p.id) {
-        // Se o pedido foi cancelado no primeiro item, o total já é 0 e o item não foi contado.
-        // Se o total é 0, não salva o pedido.
-        // É melhor checar se há itens com o ID do pedido atual.
-        // Já que a lógica de cancelamento do item volta para o menu e não para o início do pedido, 
-        // a verificação abaixo é suficiente:
-        if (continuar == 0) { // Saiu do loop de itens por vontade do usuário
-             // Se saiu por vontade e o total é zero, é um pedido vazio (se não houver itens com total zero, o que é improvável)
+        
+        if (continuar == 0) { 
+            
         }
     }
     
     if (*qtdItens == 0 || p.total == 0) {
-        // Esta checagem é menos precisa pois conta o total de itens globais, não só do pedido atual
-        // Mas para o seu código que não tem a lista de pedidos no item, vamos manter assim.
+    
         
     }
     
-    // Verificando se o pedido tem itens associados
+    
     int itens_adicionados_ao_pedido = 0;
     for (int i = 0; i < *qtdItens; i++){
         if (itens[i].pedidoId == p.id) {
@@ -300,8 +283,7 @@ void inserirPedido(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], int *q
     }
 
 
-    // Salva pedido finalizado
-    // CORREÇÃO: Usar o valor de MAX_REGISTROS (assumindo que Pedido usa MAX_REGISTROS)
+   
     if (*qtdPedidos >= MAX_REGISTROS) {
         mvprintw(15, 2, "ERRO: Limite de pedidos atingido. Pedido nao inserido.");
     } else {
@@ -405,7 +387,7 @@ void salvarPedidosCSV(Pedido pedidos[], int qtdPedidos, itemPedido itens[], int 
     // bloco de pedidos
     fprintf(fp, "#PEDIDO\n");
     for (int i = 0; i < qtdPedidos; i++){
-        // ATENÇÃO: Delimitador COMMA (,)
+        
         fprintf(fp, "%d,%d,%s,%.2f\n",
              pedidos[i].id,
              pedidos[i].clienteid,
@@ -416,7 +398,7 @@ void salvarPedidosCSV(Pedido pedidos[], int qtdPedidos, itemPedido itens[], int 
     // bloco de itens
     fprintf(fp, "#ITENS\n");
     for (int i = 0; i < qtdItens; i++) {
-        // ATENÇÃO: Delimitador COMMA (,)
+        
         fprintf(fp, "%d,%d,%d,%.2f\n",
                  itens[i].pedidoId,
                  itens[i].produtoId,
@@ -456,7 +438,7 @@ void carregarPedidosCSV(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], i
         
         // Verifica se ainda há espaço nas listas
         if (modo == 1 && *qtdPedidos < MAX_REGISTROS) {
-            // ATENÇÃO: Lendo com vírgula (,)
+           
             sscanf(linha, "%d,%d,%[^,],%lf",
                       &pedidos[*qtdPedidos].id,
                       &pedidos[*qtdPedidos].clienteid,
@@ -466,7 +448,7 @@ void carregarPedidosCSV(Pedido pedidos[], int *qtdPedidos, itemPedido itens[], i
         (*qtdPedidos)++;
         }
         else if (modo == 2 && *qtdItens < MAX_ITENS){
-            // ATENÇÃO: Lendo com vírgula (,)
+          
             sscanf(linha, "%d,%d,%d,%lf",
                      &itens[*qtdItens].pedidoId,
                      &itens[*qtdItens].produtoId,
